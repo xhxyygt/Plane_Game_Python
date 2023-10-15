@@ -33,8 +33,9 @@ class PlaneGame(object):
         # 4. 设置定时器事件 - 创建敌机　1s
         pygame.time.set_timer(CREATE_ENEMY_EVENT, random.randint(1000, 2000))
         pygame.time.set_timer(HERO_FIRE_EVENT, 400)
-        pygame.time.set_timer(BUFF1_SHOW_UP, random.randint(10000, 20000))
-        pygame.time.set_timer(BUFF2_SHOW_UP, random.randint(20000, 40000))
+        pygame.time.set_timer(BUFF1_SHOW_UP, random.randint(3000, 5000))
+        # pygame.time.set_timer(BUFF2_SHOW_UP, random.randint(20000, 40000))
+        pygame.time.set_timer(BUFF2_SHOW_UP, random.randint(5000, 10000))
         pygame.time.set_timer(ENEMY_FIRE_EVENT, 2000)
         # 5. record用于记录用户最高得分
         self.recorded = False
@@ -94,8 +95,9 @@ class PlaneGame(object):
 
     def __event_handler(self):  # 事件检测
 
-        # 出现Boss的时机
-        if self.score.getvalue() > 200+500*self.index:
+        # 出现Boss的时机（200.700...）
+        # if self.score.getvalue() > 200+500*self.index:
+        if self.score.getvalue() > 50+350*self.index:
             self.boss = Boss()
             self.enemy_group.add(self.boss)
             self.bars.append(self.boss.bar)
@@ -125,8 +127,8 @@ class PlaneGame(object):
             elif event.type == BUFF1_SHOW_UP:
                 buff1 = Buff1()
                 self.buff1_group.add(buff1)
-            elif event.type == BUFF2_SHOW_UP:
-                if self.hero.bar.color == color_red:#按需分配
+            elif event.type == BUFF2_SHOW_UP: #濒死下核弹改为血包
+                if self.hero.bar.color == color_red:
                     buff = Buff3()
                 else:
                     buff= Buff2()
@@ -236,20 +238,21 @@ class PlaneGame(object):
         for buff in self.buff1_group:
             if pygame.sprite.collide_mask(self.hero, buff):
                 buff.music_get.play()
-                if buff.speedy == 1:  # 用速度来区分
+                if buff.tag == 1:  
                     if self.hero.buff1_num < 6:
                         self.hero.buff1_num += 1
                         self.hero.music_upgrade.play()
                         if self.hero.buff1_num == 5:
                             self.team_show()
 
-                elif buff.speedy==2:
+                elif buff.tag==2:
                     self.hero.bomb += 1
                     image = pygame.image.load("./images/bomb.png")
                     self.bombs.append(image)
-                elif buff.speedy==3:
+                elif buff.tag==3:
                     if self.hero.bar.length < self.hero.bar.weight*self.hero.bar.value:
-                        self.hero.bar.length += self.hero.bar.weight*self.hero.bar.value
+                        # self.hero.bar.length += self.hero.bar.weight*self.hero.bar.value
+                        self.hero.bar.length += 160
                 buff.kill()
 
     def team_show(self):

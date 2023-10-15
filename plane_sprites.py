@@ -147,7 +147,8 @@ class Boss(GameSprite):
                     self.index2 += 1
                 else:
                     self.kill()
-                    SCORE += self.bar.value
+                    # SCORE += self.bar.value #得分增加量为血量
+                    SCORE += 100
             else:
                 self.isboom = False  # 否则还不能死
 
@@ -221,7 +222,7 @@ class Enemy(GameSprite):
                     self.index += 1
                 else:
                     self.kill()
-                    SCORE += self.bar.value
+                    SCORE += self.bar.value #普通敌机得分增加量为血量
 
 
             else:
@@ -394,10 +395,12 @@ class Bullet(GameSprite):
 class Buff1(GameSprite):
     def __init__(self):
         super().__init__("./images/bullet_supply.png", 1)
+        self.speedy = random.randint(1, 3)
         self.music_get = pygame.mixer.Sound("./music/get_bullet.wav")
         self.rect.bottom = 0
         max_x = SCREEN_RECT.width - self.rect.width
         self.rect.x = random.randint(0, max_x)
+        self.tag = 1 #定义buff种类
 
     def update(self):
         super().update()
@@ -408,6 +411,8 @@ class Buff1(GameSprite):
 class Buff2(GameSprite):
     def __init__(self):
         super().__init__("./images/bomb_supply.png", 2)
+        self.speedy = random.randint(1, 3)
+        self.tag = 2
         self.music_get = pygame.mixer.Sound("./music/get_bomb.wav")
         self.rect.bottom = random.randint(0, 700)
         max_x = SCREEN_RECT.width - self.rect.width
@@ -424,7 +429,8 @@ class Buff3(Buff2):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("./images/buff3.png")
-        self.speedy=3
+        self.speedy = random.randint(1, 3)
+        self.tag = 3
 
 
 class bloodline(object):
