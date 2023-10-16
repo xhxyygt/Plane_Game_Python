@@ -491,6 +491,18 @@ class CanvasOver():
         rect.centerx, rect.bottom = SCREEN_RECT.centerx, self.rect_again.top - 20
         self.screen.blit(image, rect) #分数贴图
 
+        # 停止背景音乐
+        pygame.mixer.music.stop()
+            
+        # 停止全部音效(渐弱)
+        pygame.mixer.fadeout(5000)
+        # pygame.mixer.stop()
+        
+        
+            
+        # 停止发放补给
+        # pygame.time.set_timer(SUPPLY_TIME, 0)
+
         #读取历史最高分
         if not self.recorded:
             self.recorded = True
