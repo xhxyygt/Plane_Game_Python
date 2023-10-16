@@ -26,7 +26,7 @@ class PlaneGame(object):
         self.index = 0
         # 音乐bgm
         self.bg_music = pygame.mixer.Sound("./music/game_music.ogg")
-        self.bg_music.set_volume(0.3)
+        self.bg_music.set_volume(0.5)
         self.bg_music.play(-1)
         # 游戏结束了吗
         self.game_over = False
@@ -230,32 +230,38 @@ class PlaneGame(object):
         # 英雄死亡，移出英雄和队友，停止播放音乐
         if not self.hero.alive():
             self.hero.rect.right = -10  # 把英雄移除屏幕
+            self.hero.kill()
             if self.hero.buff1_num == 5:
+                # mate移出屏幕
                 self.mate1.rect.right = -10
                 self.mate2.rect.right = -10
+                self.mate1.kill()
+                self.mate2.kill()
+                self.hero.buff1_num = 0
             self.game_over = True
-            pygame.mixer.fadeout(5000)
+            pygame.mixer.fadeout(2000)
 
-        # 3.buff吸收（需要改）
-        for buff in self.buff1_group:
-            if pygame.sprite.collide_mask(self.hero, buff):
-                buff.music_get.play()
-                if buff.tag == 1:  
-                    if self.hero.buff1_num < 6:
-                        self.hero.buff1_num += 1
-                        self.hero.music_upgrade.play()
-                        if self.hero.buff1_num == 5:
-                            self.team_show()
+        # 3.buff吸收
+        if self.hero.alive(): #需要判断英雄是否存活，否则会在英雄死后继续生成跟班
+            for buff in self.buff1_group:
+                if pygame.sprite.collide_mask(self.hero, buff):
+                    buff.music_get.play()
+                    if buff.tag == 1:  
+                        if self.hero.buff1_num < 6 and self.hero.alive():
+                            self.hero.buff1_num += 1
+                            self.hero.music_upgrade.play()
+                            if self.hero.buff1_num == 5:
+                                self.team_show()
 
-                elif buff.tag==2:
-                    self.hero.bomb += 1
-                    image = pygame.image.load("./images/bomb.png")
-                    self.bombs.append(image)
-                elif buff.tag==3:
-                    if self.hero.bar.length < self.hero.bar.weight*self.hero.bar.value:
-                        # self.hero.bar.length += self.hero.bar.weight*self.hero.bar.value
-                        self.hero.bar.length += 160
-                buff.kill()
+                    elif buff.tag==2:
+                        self.hero.bomb += 1
+                        image = pygame.image.load("./images/bomb.png")
+                        self.bombs.append(image)
+                    elif buff.tag==3:
+                        if self.hero.bar.length < self.hero.bar.weight*self.hero.bar.value:
+                            # self.hero.bar.length += self.hero.bar.weight*self.hero.bar.value
+                            self.hero.bar.length += 160
+                    buff.kill()
 
     def team_show(self):
         self.mate1 = Heromate(-1)

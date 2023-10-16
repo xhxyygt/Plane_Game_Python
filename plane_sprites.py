@@ -365,8 +365,8 @@ class Heromate(Hero):
             self.rect.right = SCREEN_RECT.right
         if self.rect.x < 0:
             self.rect.x = 0
-        # if self.rect.y < 0:
-        #     self.rect.y = 0
+        if self.rect.y < 0:
+            self.rect.y = 0
         elif self.rect.bottom > SCREEN_RECT.bottom:
             self.rect.bottom = SCREEN_RECT.bottom
 
@@ -475,7 +475,7 @@ class CanvasOver():
         self.rect_again.bottom = SCREEN_RECT.centery
         self.rect_over.y = self.rect_again.bottom + 20
         self.screen = screen
-        pygame.mixer.fadeout(5000)
+
 
     # 鼠标按键判断
     def event_handler(self, event):
@@ -501,6 +501,10 @@ class CanvasOver():
         rect = image.get_rect()
         rect.centerx, rect.bottom = SCREEN_RECT.centerx, self.rect_again.top - 20
         self.screen.blit(image, rect) #分数贴图
+        #结束后不生成补给
+        # pygame.time.set_timer(CREATE_ENEMY_EVENT, 0)
+        pygame.time.set_timer(BUFF1_SHOW_UP, 0)
+        pygame.time.set_timer(BUFF2_SHOW_UP, 0)
 
         #读取历史最高分
         if not self.recorded:
