@@ -227,12 +227,14 @@ class PlaneGame(object):
 
                 self.hero.isboom = True
 
+        # 英雄死亡，移出英雄和队友，停止播放音乐
         if not self.hero.alive():
             self.hero.rect.right = -10  # 把英雄移除屏幕
             if self.hero.buff1_num == 5:
                 self.mate1.rect.right = -10
                 self.mate2.rect.right = -10
             self.game_over = True
+            pygame.mixer.fadeout(5000)
 
         # 3.buff吸收（需要改）
         for buff in self.buff1_group:

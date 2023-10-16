@@ -277,8 +277,18 @@ class Hero(GameSprite):
 
         # 英雄喷气动画
 
-        self.image = pygame.image.load("./images/me" + str((self.index1 // 6) % 2 + 1) + ".png")
-        self.index1 += 1
+        # self.image = pygame.image.load("./images/me" + str((self.index1 // 6) % 2 + 1) + ".png")
+        # self.index1 += 1
+        # 使用键盘提供的方法获取键盘按键 - 按键元组
+        keys_pressed = pygame.key.get_pressed()
+        # 判断元组中对应的按键索引值 1
+        if keys_pressed[pygame.K_RIGHT]:
+            self.image = pygame.image.load("./images/me_right.png")
+        elif keys_pressed[pygame.K_LEFT]:
+            self.image = pygame.image.load("./images/me_left.png")
+        else:
+            self.image = pygame.image.load("./images/me1.png")
+        
 
         # 英雄爆炸动画
         if self.isboom:
@@ -355,8 +365,8 @@ class Heromate(Hero):
             self.rect.right = SCREEN_RECT.right
         if self.rect.x < 0:
             self.rect.x = 0
-        if self.rect.y < 0:
-            self.rect.y = 0
+        # if self.rect.y < 0:
+        #     self.rect.y = 0
         elif self.rect.bottom > SCREEN_RECT.bottom:
             self.rect.bottom = SCREEN_RECT.bottom
 
@@ -414,7 +424,7 @@ class Buff2(GameSprite):
         self.speedy = random.randint(1, 3)
         self.tag = 2
         self.music_get = pygame.mixer.Sound("./music/get_bomb.wav")
-        self.rect.bottom = random.randint(0, 700)
+        self.rect.bottom = random.randint(0, 300) #随机出现在上半个屏幕上
         max_x = SCREEN_RECT.width - self.rect.width
         self.rect.x = random.randint(0, max_x)
         self.ran = random.randint(60, 180)  # 在持续1~3s后消失
@@ -465,6 +475,7 @@ class CanvasOver():
         self.rect_again.bottom = SCREEN_RECT.centery
         self.rect_over.y = self.rect_again.bottom + 20
         self.screen = screen
+        pygame.mixer.fadeout(5000)
 
     # 鼠标按键判断
     def event_handler(self, event):
@@ -490,18 +501,6 @@ class CanvasOver():
         rect = image.get_rect()
         rect.centerx, rect.bottom = SCREEN_RECT.centerx, self.rect_again.top - 20
         self.screen.blit(image, rect) #分数贴图
-
-        # 停止背景音乐
-        pygame.mixer.music.stop()
-            
-        # 停止全部音效(渐弱)
-        pygame.mixer.fadeout(5000)
-        # pygame.mixer.stop()
-        
-        
-            
-        # 停止发放补给
-        # pygame.time.set_timer(SUPPLY_TIME, 0)
 
         #读取历史最高分
         if not self.recorded:
