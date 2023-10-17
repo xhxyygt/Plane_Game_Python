@@ -127,6 +127,9 @@ class PlaneGame(object):
                 pygame.quit()
                 sys.exit()
             if event.type == CREATE_ENEMY_EVENT:
+                self.enemy_level = self.score.getvalue()//160
+                if self.enemy_level > 3:
+                    self.enemy_level = 3
                 # 创建敌机精灵将敌机精灵添加到敌机精灵组
                 if self.score.getvalue() < 20:
                     enemy = Enemy()
@@ -135,6 +138,10 @@ class PlaneGame(object):
                         enemy = Enemy()
                     else:
                         enemy = Enemy(2)
+
+                    enemy.speedy=random.randint(1+self.enemy_level, 3+self.enemy_level)
+                    enemy.bar.weight = enemy.bar.weight/10 if self.enemy_level >=1 else enemy.bar.weight
+
 
                 self.enemy_group.add(enemy)
                 self.bars.append(enemy.bar)
