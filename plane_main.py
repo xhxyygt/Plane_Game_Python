@@ -202,7 +202,7 @@ class PlaneGame(object):
                 if enemy.number < 3:
                     enemy.bar.length = 0  # 敌机直接死
                     self.hero.injury = self.hero.bar.value / 3  # 英雄掉3分之一的血
-                    if self.hero.buff1_num > 0:
+                    if self.hero.buff1_num > 0 and self.hero.alive(): #没死的话降级
                         self.hero.buff1_num -= 1
                         self.hero.music_degrade.play()
                     self.enemy_group.remove(enemy)
@@ -218,7 +218,7 @@ class PlaneGame(object):
                 bullet.kill()
                 # self.hero.injury = 1
                 self.hero.injury = self.hero.bar.value / 3  # 英雄掉3分之一的血
-                if self.hero.buff1_num > 0:
+                if self.hero.buff1_num > 0 and self.hero.alive():
                     self.hero.music_degrade.play()
                     if self.hero.buff1_num == 5:
                         self.mate1.kill()
@@ -231,7 +231,7 @@ class PlaneGame(object):
         if not self.hero.alive():
             self.hero.rect.right = -10  # 把英雄移除屏幕
             self.hero.kill()
-            if self.hero.buff1_num == 5:
+            if self.hero.buff1_num >= 4:
                 # mate移出屏幕
                 self.mate1.rect.right = -10
                 self.mate2.rect.right = -10
@@ -272,6 +272,7 @@ class PlaneGame(object):
         self.mate2.rect = self.mate2.image.get_rect()
         self.hero_group.add(self.mate1)
         self.hero_group.add(self.mate2)
+        # if
 
     # 各种更新
     def __update_sprites(self):
