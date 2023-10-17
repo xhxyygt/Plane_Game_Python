@@ -1,5 +1,7 @@
 import random
 import pygame
+
+from plane_main import PlaneGame
 pygame.init()
 
 # 分数
@@ -124,13 +126,13 @@ class Boss(GameSprite):
     def update(self):
         # 左右移
         global SCORE
-        if self.index4 % 2 == 0:  # 降低帧速率,注意这两个指针不能一样
+        # if self.index4 % 2 == 0:  # 降低帧速率,注意这两个指针不能一样
             # 内部为左右移动大概50像素
-            if self.index3 % 50 == 0 and (self.index3 // 50) % 2 == 1:
-                self.speedx = -self.speedx
-            self.rect.x += self.speedx
-            self.index3 += 1
-        self.index4 += 1
+        if self.index3 % 50 == 0 and (self.index3 // 50) % 2 == 1:
+            self.speedx = -self.speedx
+        self.rect.x += self.speedx
+        self.index3 += 1
+        # self.index4 += 1
 
         # 发电动画
         self.image = pygame.image.load("./images/enemy3_n" + str((self.index1 // 6) % 2 + 1) + ".png")
@@ -140,7 +142,7 @@ class Boss(GameSprite):
         if self.isboom:
             self.bar.length -= self.injury * self.bar.weight
             if self.bar.length <= 0:  # 此时满足爆炸的条件了
-                self.music_fly.stop()
+                self.music_fly.fadeout(1000)
                 if self.index2 == 0:
                     self.music_boom.play()
                 if self.index2 < 29:  # 4*7+1
@@ -284,9 +286,9 @@ class Hero(GameSprite):
         # 使用键盘提供的方法获取键盘按键 - 按键元组
         keys_pressed = pygame.key.get_pressed()
         # 判断元组中对应的按键索引值 1
-        if keys_pressed[pygame.K_RIGHT]:
+        if keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]:
             self.image = pygame.image.load("./images/me_right.png")
-        elif keys_pressed[pygame.K_LEFT]:
+        elif keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]:
             self.image = pygame.image.load("./images/me_left.png")
         else:
             self.image = pygame.image.load("./images/me1.png")
@@ -522,12 +524,19 @@ class CanvasOver():
 
 class CanvasStart():
     def __init__(self, screen):
-        self.img_again = pygame.image.load("./images/again.png")
+        self.img_over = pygame.image.load("./images/gameover.png")
+        self.rect_over = self.img_over.get_rect()
 
+        self.img_again = pygame.image.load("./images/play.png")
         self.rect_again = self.img_again.get_rect()
 
-        self.rect_again.centerx = SCREEN_RECT.centerx
-        self.rect_again.bottom = SCREEN_RECT.centery
+        self.img_logo = pygame.image.load("./images/logo.png")
+        self.rect_logo = self.img_logo.get_rect()
+
+        self.rect_again.centerx = self.rect_over.centerx  = self.rect_logo.centerx = SCREEN_RECT.centerx
+        self.rect_again.bottom = SCREEN_RECT.centery + 100
+        self.rect_over.y = self.rect_again.bottom + 20
+        self.rect_logo.bottom = SCREEN_RECT.centery 
         self.screen = screen
 
     def event_handler(self, event):
@@ -538,7 +547,12 @@ class CanvasStart():
                 global SCORE
                 SCORE=0
                 return 1
+            elif self.rect_over.left < pos[0] < self.rect_over.right and \
+                    self.rect_over.top < pos[1] < self.rect_over.bottom:
+                return 2
 
 
     def update(self):
         self.screen.blit(self.img_again, self.rect_again)
+        self.screen.blit(self.img_over, self.rect_over)
+        self.screen.blit(self.img_logo, self.rect_logo)

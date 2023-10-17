@@ -4,6 +4,8 @@ import pygame
 pygame.init()
 from plane_sprites import *
 
+GAME_ACTIVE = False #写成全局变量的意义是方便在结束界面更改（结束界面按重新开始不要再次显示开始界面）
+
 class PlaneGame(object):
     """飞机大战主游戏"""
 
@@ -22,11 +24,10 @@ class PlaneGame(object):
         self.__create_sprites()
         # 分数对象
         self.score = GameScore()
-        # self.score = 0
         # 程序控制指针
         self.index = 0
         # 游戏是否开始
-        self.game_active = False 
+        # self.game_active = False 
         # 音乐bgm
         self.bg_music = pygame.mixer.Sound("./music/game_music.ogg")
         self.bg_music.set_volume(0.5)
@@ -79,7 +80,9 @@ class PlaneGame(object):
         print("游戏开始...")
 
         while True:
-            if self.game_active == True: #游戏开始时才进行事件和碰撞检测
+            global GAME_ACTIVE
+            if GAME_ACTIVE == True:
+            # if self.game_active == True: #游戏开始时才进行事件和碰撞检测
 
                 # 2. 事件监听
                 self.__event_handler()
@@ -97,10 +100,16 @@ class PlaneGame(object):
 
     def _check_events(self): # 开始界面事件检测
         for event in pygame.event.get():
-            if self.game_active == False:
+            global GAME_ACTIVE
+            if GAME_ACTIVE == False:
+            # if self.game_active == False:
                 flag = self.canvas_start.event_handler(event)
                 if flag == 1:
-                    self.game_active = True
+                    GAME_ACTIVE = True
+                    # self.game_active = True
+                elif flag == 2:
+                    pygame.quit()
+                    sys.exit()
 
     def __event_handler(self):  # 事件检测
 
@@ -154,21 +163,22 @@ class PlaneGame(object):
                 if self.game_over == True:
                     flag = self.canvas_over.event_handler(event)
                     if flag == 1:
-                        self.__start__()                        
+                        self.__start__()                       
                     elif flag == 0:
                         pygame.quit()
                         sys.exit()
 
         # 使用键盘提供的方法获取键盘按键 - 按键元组
         keys_pressed = pygame.key.get_pressed()
-        # 判断元组中对应的按键索引值 1
-        if keys_pressed[pygame.K_RIGHT]:
+        pygame.key.stop_text_input() #停止读文本输入，防止按字母键的时候卡死（作为读文本在等待）
+        # 判断元组中对应的按键索引值 
+        if keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]:
             self.heros_move(5)
-        elif keys_pressed[pygame.K_LEFT]:
+        elif keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]:
             self.heros_move(-5)
-        elif keys_pressed[pygame.K_UP]:
+        elif keys_pressed[pygame.K_UP] or keys_pressed[pygame.K_w]:
             self.heros_move(0, -5)
-        elif keys_pressed[pygame.K_DOWN]:
+        elif keys_pressed[pygame.K_DOWN] or keys_pressed[pygame.K_s]:
             self.heros_move(0, 5)
         else:
             self.heros_move(0, 0)
@@ -212,6 +222,9 @@ class PlaneGame(object):
                     enemy.bar.length = 0  # 敌机直接死
                     self.hero.injury = self.hero.bar.value / 3  # 英雄掉3分之一的血
                     if self.hero.buff1_num > 0:
+                        if self.hero.buff1_num == 5:
+                            self.mate1.kill()
+                            self.mate2.kill()
                         self.hero.buff1_num -= 1
                         self.hero.music_degrade.play()
                     self.enemy_group.remove(enemy)
@@ -256,7 +269,7 @@ class PlaneGame(object):
                 if pygame.sprite.collide_mask(self.hero, buff):
                     buff.music_get.play()
                     if buff.tag == 1:  
-                        if self.hero.buff1_num < 6 and self.hero.alive():
+                        if self.hero.buff1_num < 5 and self.hero.alive():
                             self.hero.buff1_num += 1
                             self.hero.music_upgrade.play()
                             if self.hero.buff1_num == 5:
@@ -315,7 +328,9 @@ class PlaneGame(object):
         self.level_show()
         
         # 游戏开始和结束画面显示
-        if not self.game_active:
+        global GAME_ACTIVE
+        if not GAME_ACTIVE:
+        # if not self.game_active:
             self.canvas_start.update()
         if self.game_over:
             self.canvas_over.update()  
@@ -369,10 +384,11 @@ class PlaneGame(object):
 
     def level_show(self):
         level_font = pygame.font.Font("./STCAIYUN.ttf", 33)
-        if self.hero.buff1_num < 5:
-            level_image = level_font.render("LEVEL:" + str(int(self.hero.buff1_num)), True, color_black)
-        else:
-            level_image = level_font.render("LEVEL: MAX" , True, color_black)
+        level_image = level_font.render("LEVEL:" + str(int(self.hero.buff1_num)), True, color_gray)
+        # if self.hero.buff1_num < 5:
+        #     level_image = level_font.render("LEVEL:" + str(int(self.hero.buff1_num)), True, color_black)
+        # else:
+        #     level_image = level_font.render("LEVEL: MAX" , True, color_black)
         rect = level_image.get_rect()
         rect.right = SCREEN_RECT.right - 20
         rect.top = 50
