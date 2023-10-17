@@ -12,6 +12,7 @@ color_green = (0, 255, 0)
 color_red = (255, 0, 0)
 color_purple = (148, 0, 211)
 color_gray = (251, 255, 242)
+color_black = (0,0,0)
 # 刷新的帧率
 FRAME_PER_SEC = 60  # 刷新率是60hz,即每秒update60次
 # 创建敌机的定时器常量,自定义用户事件,其实就是int数,不同数表示不同事件
@@ -91,8 +92,9 @@ class Boss(GameSprite):
     def __init__(self):
         super().__init__("./images/enemy3_n1.png", 0, 1)
         self.music_boom = pygame.mixer.Sound("./music/enemy3_down.wav")
-        self.music_fly = pygame.mixer.Sound("./music/enemy3_flying.wav")
+        self.music_fly = pygame.mixer.Sound("./music/enemy3_flying.mp3")
         self.music_fly.play(-1)
+        self.music_fly.set_volume(0.5)
         self.rect.centerx = 240
         self.y = 200
         self.isboom = False
@@ -517,3 +519,26 @@ class CanvasOver():
                     f.write(str(int(SCORE)))
         record_score_text = score_font.render("Best : %d" % recorded_score, True, (255, 255, 255))
         self.screen.blit(record_score_text, (50, 50))
+
+class CanvasStart():
+    def __init__(self, screen):
+        self.img_again = pygame.image.load("./images/again.png")
+
+        self.rect_again = self.img_again.get_rect()
+
+        self.rect_again.centerx = SCREEN_RECT.centerx
+        self.rect_again.bottom = SCREEN_RECT.centery
+        self.screen = screen
+
+    def event_handler(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+            if self.rect_again.left < pos[0] < self.rect_again.right and \
+                    self.rect_again.top < pos[1] < self.rect_again.bottom:
+                global SCORE
+                SCORE=0
+                return 1
+
+
+    def update(self):
+        self.screen.blit(self.img_again, self.rect_again)

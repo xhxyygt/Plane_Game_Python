@@ -13,7 +13,8 @@ class PlaneGame(object):
 
         # 1. 创建游戏的窗口
         self.screen = pygame.display.set_mode(SCREEN_RECT.size)
-        # 创建结束界面
+        # 创建开始和结束界面
+        self.canvas_start = CanvasStart(self.screen)
         self.canvas_over = CanvasOver(self.screen)
         # 2. 创建游戏的时钟
         self.clock = pygame.time.Clock()
@@ -24,6 +25,8 @@ class PlaneGame(object):
         # self.score = 0
         # 程序控制指针
         self.index = 0
+        # 游戏是否开始
+        self.game_active = False 
         # 音乐bgm
         self.bg_music = pygame.mixer.Sound("./music/game_music.ogg")
         self.bg_music.set_volume(0.5)
@@ -76,22 +79,28 @@ class PlaneGame(object):
         print("游戏开始...")
 
         while True:
+            if self.game_active == True: #游戏开始时才进行事件和碰撞检测
+
+                # 2. 事件监听
+                self.__event_handler()
+                # 3. 碰撞检测
+                self.__check_collide()
+
+            self._check_events()
             # 1. 设置刷新帧率
             self.clock.tick(FRAME_PER_SEC)
-            # 2. 事件监听
-            self.__event_handler()
-            # 3. 碰撞检测
-            self.__check_collide()
             # 4. 更新/绘制精灵组
             self.__update_sprites()
 
-            # 是否要结束游戏
-
-            if self.game_over:
-                self.canvas_over.update()
-
             # 5. 更新显示
             pygame.display.update()
+
+    def _check_events(self): # 开始界面事件检测
+        for event in pygame.event.get():
+            if self.game_active == False:
+                flag = self.canvas_start.event_handler(event)
+                if flag == 1:
+                    self.game_active = True
 
     def __event_handler(self):  # 事件检测
 
@@ -202,7 +211,7 @@ class PlaneGame(object):
                 if enemy.number < 3:
                     enemy.bar.length = 0  # 敌机直接死
                     self.hero.injury = self.hero.bar.value / 3  # 英雄掉3分之一的血
-                    if self.hero.buff1_num > 0 and self.hero.alive(): #没死的话降级
+                    if self.hero.buff1_num > 0:
                         self.hero.buff1_num -= 1
                         self.hero.music_degrade.play()
                     self.enemy_group.remove(enemy)
@@ -218,7 +227,7 @@ class PlaneGame(object):
                 bullet.kill()
                 # self.hero.injury = 1
                 self.hero.injury = self.hero.bar.value / 3  # 英雄掉3分之一的血
-                if self.hero.buff1_num > 0 and self.hero.alive():
+                if self.hero.buff1_num > 0:
                     self.hero.music_degrade.play()
                     if self.hero.buff1_num == 5:
                         self.mate1.kill()
@@ -231,18 +240,18 @@ class PlaneGame(object):
         if not self.hero.alive():
             self.hero.rect.right = -10  # 把英雄移除屏幕
             self.hero.kill()
-            if self.hero.buff1_num >= 4:
+            if self.hero.buff1_num >= 4: #5级死的时候buff显示为4
                 # mate移出屏幕
                 self.mate1.rect.right = -10
                 self.mate2.rect.right = -10
                 self.mate1.kill()
                 self.mate2.kill()
-                self.hero.buff1_num = 0
+                # self.hero.buff1_num = 0
             self.game_over = True
             pygame.mixer.fadeout(2000)
 
         # 3.buff吸收
-        if self.hero.alive(): #需要判断英雄是否存活，否则会在英雄死后继续生成跟班
+        if self.hero.bar.length: #需要判断英雄是否存活，否则会在英雄死后继续生成跟班
             for buff in self.buff1_group:
                 if pygame.sprite.collide_mask(self.hero, buff):
                     buff.music_get.play()
@@ -272,7 +281,6 @@ class PlaneGame(object):
         self.mate2.rect = self.mate2.image.get_rect()
         self.hero_group.add(self.mate1)
         self.hero_group.add(self.mate2)
-        # if
 
     # 各种更新
     def __update_sprites(self):
@@ -302,7 +310,16 @@ class PlaneGame(object):
         self.enemy_bullet_group.update()
         self.enemy_bullet_group.draw(self.screen)
 
+        # 得分和等级显示
         self.score_show()
+        self.level_show()
+        
+        # 游戏开始和结束画面显示
+        if not self.game_active:
+            self.canvas_start.update()
+        if self.game_over:
+            self.canvas_over.update()  
+        pygame.display.flip()
 
     def heros_update(self):
 
@@ -350,6 +367,17 @@ class PlaneGame(object):
         rect.bottom, rect.right = 700, 480
         self.screen.blit(image, rect)
 
+    def level_show(self):
+        level_font = pygame.font.Font("./STCAIYUN.ttf", 33)
+        if self.hero.buff1_num < 5:
+            level_image = level_font.render("LEVEL:" + str(int(self.hero.buff1_num)), True, color_black)
+        else:
+            level_image = level_font.render("LEVEL: MAX" , True, color_black)
+        rect = level_image.get_rect()
+        rect.right = SCREEN_RECT.right - 20
+        rect.top = 50
+        self.screen.blit(level_image, rect)
+        
     @staticmethod
     def __start__():
         # 创建游戏对象
