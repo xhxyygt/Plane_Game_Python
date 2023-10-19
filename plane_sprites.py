@@ -8,6 +8,9 @@ pygame.init()
 SCORE = 0
 # 屏幕大小的常量
 SCREEN_RECT = pygame.Rect(0, 0, 480, 700)
+pygame.display.set_caption("Plane War")
+img_my = pygame.image.load("./images/logo.png")
+pygame.display.set_icon(img_my)
 # color
 color_blue = (30, 144, 255)
 color_green = (0, 255, 0)
@@ -505,8 +508,8 @@ class CanvasOver():
         rect = image.get_rect()
         rect.centerx, rect.bottom = SCREEN_RECT.centerx, self.rect_again.top - 20
         self.screen.blit(image, rect) #分数贴图
+        
         #结束后不生成补给
-        # pygame.time.set_timer(CREATE_ENEMY_EVENT, 0)
         pygame.time.set_timer(BUFF1_SHOW_UP, 0)
         pygame.time.set_timer(BUFF2_SHOW_UP, 0)
 

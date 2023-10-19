@@ -283,9 +283,10 @@ class PlaneGame(object):
                                 self.team_show()
 
                     elif buff.tag==2:
-                        self.hero.bomb += 1
-                        image = pygame.image.load("./images/bomb.png")
-                        self.bombs.append(image)
+                        if self.hero.bomb < 3:
+                            self.hero.bomb += 1 #最多三个炸弹
+                            image = pygame.image.load("./images/bomb.png")
+                            self.bombs.append(image)
                     elif buff.tag==3:
                         if self.hero.bar.length < self.hero.bar.weight*self.hero.bar.value:
                             # self.hero.bar.length += self.hero.bar.weight*self.hero.bar.value
