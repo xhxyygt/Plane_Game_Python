@@ -35,11 +35,11 @@ class PlaneGame(object):
         # 游戏结束了吗
         self.game_over = False
         # 4. 设置定时器事件 - 创建敌机　1s
-        pygame.time.set_timer(CREATE_ENEMY_EVENT, random.randint(1000, 2000))
+        pygame.time.set_timer(CREATE_ENEMY_EVENT, random.randint(500, 1000)) #原本是1-2s
         pygame.time.set_timer(HERO_FIRE_EVENT, 400)
-        pygame.time.set_timer(BUFF1_SHOW_UP, random.randint(3000, 5000))
+        pygame.time.set_timer(BUFF1_SHOW_UP, random.randint(1000, 3000))
         # pygame.time.set_timer(BUFF2_SHOW_UP, random.randint(20000, 40000))
-        pygame.time.set_timer(BUFF2_SHOW_UP, random.randint(5000, 10000))
+        pygame.time.set_timer(BUFF2_SHOW_UP, random.randint(2000, 5000))
         pygame.time.set_timer(ENEMY_FIRE_EVENT, 2000)
         # 5. record用于记录用户最高得分
         self.recorded = False
@@ -81,13 +81,13 @@ class PlaneGame(object):
 
         while True:
             global GAME_ACTIVE
-            if GAME_ACTIVE == True:
+            if GAME_ACTIVE == True :
             # if self.game_active == True: #游戏开始时才进行事件和碰撞检测
-
                 # 2. 事件监听
                 self.__event_handler()
-                # 3. 碰撞检测
-                self.__check_collide()
+                if self.game_over == False: #游戏结束后进行监听但是不进行碰撞检测
+                    # 3. 碰撞检测
+                    self.__check_collide()
 
             self._check_events()
             # 1. 设置刷新帧率
@@ -115,7 +115,7 @@ class PlaneGame(object):
 
         # 出现Boss的时机（200.700...）
         # if self.score.getvalue() > 200+500*self.index:
-        if self.score.getvalue() > 50+350*self.index:
+        if self.score.getvalue() > 30+350*self.index:
             self.boss = Boss()
             self.enemy_group.add(self.boss)
             self.bars.append(self.boss.bar)
@@ -140,7 +140,7 @@ class PlaneGame(object):
                         enemy = Enemy(2)
 
                     enemy.speedy=random.randint(1+self.enemy_level, 3+self.enemy_level)
-                    enemy.bar.weight = enemy.bar.weight/10 if self.enemy_level >=1 else enemy.bar.weight
+                    enemy.bar.weight = enemy.bar.weight/5 if self.enemy_level >=1 else enemy.bar.weight
 
 
                 self.enemy_group.add(enemy)
@@ -289,7 +289,6 @@ class PlaneGame(object):
                             self.bombs.append(image)
                     elif buff.tag==3:
                         if self.hero.bar.length < self.hero.bar.weight*self.hero.bar.value:
-                            # self.hero.bar.length += self.hero.bar.weight*self.hero.bar.value
                             self.hero.bar.length += 160
                     buff.kill()
 
